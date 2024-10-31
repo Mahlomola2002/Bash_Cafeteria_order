@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'dart:math';
 
 class AddNewDish extends StatefulWidget {
   const AddNewDish({super.key});
@@ -21,20 +24,45 @@ class _AddNewDishState extends State<AddNewDish> {
       });
 
       try {
-        // Simulate API call with delay
-        await Future.delayed(const Duration(seconds: 2));
-        // TODO: Implement your API call here
-        // final response = await yourApiCall();
+        // Prepare the data to send in the request
+        final int id = Random().nextInt(90000) + 10000;
+        final Map<String, dynamic> dishData = {
+          "id": id, // generated 5-digit id
+          "name": _dishNameController.text,
+          "description": _descriptionController.text,
+          "price": double.parse(_priceController.text),
+          "rating": 0.0, // default rating
+        };
 
-        // Show success message
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Dish added successfully!')),
-          );
-          // Clear form
-          _dishNameController.clear();
-          _descriptionController.clear();
-          _priceController.clear();
+        print('Sending data: ${jsonEncode(dishData)}');
+
+        // Send POST request to the FastAPI endpoint
+        final response = await http.post(
+          Uri.parse('http://127.0.0.1:8000/create/'),
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          body: jsonEncode(dishData),
+        );
+
+        if (response.statusCode == 200) {
+          // Success: show confirmation message and clear form
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Dish added successfully!')),
+            );
+            _dishNameController.clear();
+            _descriptionController.clear();
+            _priceController.clear();
+          }
+        } else {
+          // Error: display error message
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Error: ${response.body}')),
+            );
+          }
         }
       } catch (e) {
         if (mounted) {

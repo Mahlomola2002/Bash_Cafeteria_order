@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -77,8 +78,11 @@ class _ViewOrderState extends State<ViewOrder> {
     });
 
     try {
+      final String userId = await _getCurrentUserId();
+
+      // Update the URL to include the user ID
       final response = await http.get(
-        Uri.parse('http://127.0.0.1:8000/orders'),
+        Uri.parse('http://127.0.0.1:8000/View_orders/$userId'),
       );
 
       print('Response status: ${response.statusCode}');
@@ -108,6 +112,11 @@ class _ViewOrderState extends State<ViewOrder> {
         _errorMessage = 'Failed to load orders: $error';
       });
     }
+  }
+
+  Future<String> _getCurrentUserId() async {
+    final user = FirebaseAuth.instance.currentUser;
+    return user?.uid ?? '';
   }
 
   @override
@@ -205,16 +214,6 @@ class _ViewOrderState extends State<ViewOrder> {
                 const SizedBox(height: 8),
                 const Text('Items:'),
                 ..._buildOrderItems(order.items),
-                const SizedBox(height: 16),
-                if (order.status != 'completed')
-                  ElevatedButton(
-                    onPressed: () => _updateOrderStatus(order.id),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      minimumSize: const Size(double.infinity, 36),
-                    ),
-                    child: const Text('Mark as Completed'),
-                  ),
               ],
             ),
           ),

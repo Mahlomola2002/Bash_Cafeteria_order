@@ -1,95 +1,53 @@
-import 'package:bash/screens/admin/addNewDish.dart';
-import 'package:bash/screens/admin/home.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:google_nav_bar/google_nav_bar.dart';
+import 'package:bash/screens/SignUp/logIn.dart';
+import 'package:bash/screens/Student/StudentNavBar.dart';
+import 'package:bash/screens/admin/adminNavbar.dart'; // Keep only one import for AdminNavBar
 
-void main() {
-  runApp(MyApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: FirebaseOptions(
+      apiKey: "AIzaSyBQuE0JBVyhkQZRW3TO5sGGcFFo0JJrRzk",
+      appId: "cafe-2bd00",
+      databaseURL: "https://cafe-2bd00-default-rtdb.firebaseio.com",
+      messagingSenderId: "1032949834293",
+      projectId: "1032949834293",
+    ),
+  );
+
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter App',
+      title: 'Your App Name',
       theme: ThemeData(
         primarySwatch: Colors.blue,
-      ),
-      debugShowCheckedModeBanner: false,
-      home: HomeWrapper(),
-    );
-  }
-}
-
-class HomeWrapper extends StatefulWidget {
-  @override
-  _HomeWrapperState createState() => _HomeWrapperState();
-}
-
-class _HomeWrapperState extends State<HomeWrapper> {
-  int _currentIndex = 0;
-  final List<Widget> _children = [HomePage(), AddNewDish(), Text("dance")];
-
-  void onTabTapped(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _children,
-      ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(0),
-          boxShadow: [
-            BoxShadow(
-              blurRadius: 10.0,
-              spreadRadius: 2.0,
-              offset: Offset(5.0, 5.0),
-            ),
-          ],
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 20.0),
-          child: GNav(
-            backgroundColor: Colors.white,
-            rippleColor: Colors.grey[200]!,
-            hoverColor: Colors.grey[100]!,
-            haptic: true,
-            tabBorderRadius: 15,
-            curve: Curves.easeOutExpo,
-            duration: Duration(milliseconds: 300),
-            gap: 8,
-            color: Colors.grey[600], // Darker color for inactive tabs
-            activeColor: Colors.black, // Blue color for active tab
-            iconSize: 24,
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-            onTabChange: onTabTapped,
-            tabs: [
-              GButton(
-                icon: Icons.home_filled,
-                text: "Home",
-              ),
-              GButton(
-                icon: Icons.add_circle_outline, // Outline style for consistency
-                text: "Add Dish",
-              ),
-              GButton(
-                icon: Icons
-                    .receipt_long, // Use `receipt_long` for a better orders icon
-                text: 'View Orders',
-              ),
-            ],
+        // Add some additional theme settings for consistency
+        scaffoldBackgroundColor: Colors.white,
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          iconTheme: IconThemeData(color: Colors.black),
+          titleTextStyle: TextStyle(
+            color: Colors.black,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
           ),
         ),
       ),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const LoginPage(),
+        '/student-dashboard': (context) => const StudentNavbar(), // Add const
+        '/cafeteria-dashboard': (context) => const AdminNavBar(), // Add const
+      },
+      debugShowCheckedModeBanner: false, // Remove debug banner
     );
   }
 }
